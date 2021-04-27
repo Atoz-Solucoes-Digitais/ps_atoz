@@ -1,4 +1,18 @@
-# Projeto para vaga de Desenvolvedor Python Jr.
+# Solução
+
+Para executar a solução, instale as dependências e execute
+```bash
+scrapy crawl termometro -a start_url={url da página} -O output.json
+```
+
+onde `{url da página}` deve ser o url de uma página termômetro de alguma categoria, por exemplo "https://www.amazon.com.br/gp/movers-and-shakers/electronics/".
+
+Para resolver o problema eu criei uma spider "termometro".
+Ela recebe `start_url` como argumento no \_\_init\_\_().
+Para cada informação requisitada existe um método que a extrai de um item da lista de produtos.
+O método `parse` apenas recebe a request, acha a lista de produtos, e chama os métodos privados para cada produto na lista.
+
+# Problema - Projeto para vaga de Desenvolvedor Python Jr.
 ***
 
 ## Instalação (Linux)
