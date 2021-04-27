@@ -11,11 +11,15 @@ class QuotesSpider(scrapy.Spider):
         for i in response.xpath('//li[@class="zg-item-immersion"]'):
 
             #Definição do nome:
+            # Identificadores não representativos nas variaveis
             n = i.xpath('.//div/text()').get()
             n=n.split('\n')
             n=n[1].strip()
             name = n
             
+            # Faltou uma maior separação de responsabilidade no código. Todo o processamento
+            # incluindo raspagem, limpeza e casting dos dados foi feito junto, tornando o debug complicado
+
             #Definição do link:
             link = 'amazon.com.br' + i.xpath('.//a/@href').get()
 
@@ -41,7 +45,7 @@ class QuotesSpider(scrapy.Spider):
             rank_percent_change = i.xpath('.//span[@class="zg-percent-change"]//text()').get()
             rank_percent_change = int(rank_percent_change.replace('%', '').replace('.', ''))
 
-
+            # Bom tratamento de erros preenchendo None como fallback
             #Definição do average_rate:
             try:
                 average_rate = i.xpath('.//span[@class="a-icon-alt"]//text()').get()
@@ -71,6 +75,10 @@ class QuotesSpider(scrapy.Spider):
 
             try:
                 price = i.xpath('.//span[@class="p13n-sc-price"]//text()').getall()
+                # Legal ter utilizado list comprehension aqui.
+                # Não funcionará caso encontre algum preço acima de R$999,99 já que
+                # Terá '.' com separador de milhar (RS1.000,00) como rate_qty
+                # Muita lógica agrupada
                 price = [(p.replace('R$', '').replace(',', '.')) for p in price]
 
                 min_price = float(price[0])
