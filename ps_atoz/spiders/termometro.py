@@ -21,8 +21,8 @@ class TermometroSpider(scrapy.Spider):
                 'link': response.urljoin(self._get_link(item)),
                 'image_link': self._get_image_link(item),
                 'thermometer_rank': self._get_thermometer_rank(item),
-                'recent_category_rank': max(category_ranks),
-                'past_category_rank': min(category_ranks),
+                'recent_category_rank': min(category_ranks),
+                'past_category_rank': max(category_ranks),
                 'rank_percent_change': self._get_rank_percent_change(item),
                 'average_rate': self._get_average_rate(item),
                 'rate_qty': self._get_rate_qty(item),
@@ -51,7 +51,7 @@ class TermometroSpider(scrapy.Spider):
         category_ranks = item.css('span.zg-sales-movement::text').get()
         category_ranks = re.sub('[.,]', '', category_ranks)
         category_ranks = re.findall('[0-9]+', category_ranks)
-        return category_ranks
+        return list(map(int, category_ranks))
 
     def _get_rank_percent_change(self, item):
         rank_percent_change = item.css('span.zg-percent-change::text').get()
