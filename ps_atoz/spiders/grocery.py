@@ -6,6 +6,10 @@ class GrocerySpider(scrapy.Spider):
     start_urls = ['https://www.amazon.com.br/gp/movers-and-shakers/grocery/']
 
     def parse(self, response):
+        # Raspagem, validação, limpeza e conversão de tipos concentrada em apenas uma função.
+        # Isso dificulta manutenção. Poderia ter separado em funções privadas da spider.
+        
+        # Bacana o uso do Scrapy Item
         items = PsAtozItem()
 
         containers = response.css(".zg-item-immersion")
@@ -14,6 +18,8 @@ class GrocerySpider(scrapy.Spider):
             name = container.css('.a-spacing-small img').xpath("@alt").extract_first()
             link = container.xpath(".//span[@class='aok-inline-block zg-item']").xpath(".//a[@class='a-link-normal']").xpath("@href").extract_first()
             image_link = container.css('.a-spacing-small img').xpath("@src").extract_first()
+
+            # Tipo errado, voltando string ao invés de integer e nao removeu o "#"
             thermometer_rank = container.css(".zg-badge-text::text").extract_first()
 
             #parsing sales_movement text
@@ -42,8 +48,12 @@ class GrocerySpider(scrapy.Spider):
             #parsing price
             min_price = None
             max_price = None
+            # Ao utilizar extract_first, apenas o primeiro elemento é extraído, ou seja,
+            # nunca conseguirá extrair o preço máximo
             prices = container.css(".p13n-sc-price::text").extract_first()
             if(prices != None) :
+                # Lógica de limpeza não contempla preços que tenham separador de milhar
+                # e.g. "R$1.189,99"
                 prices = prices.replace('R$', '')
                 prices = prices.replace(',', '.')
                 split_price = prices.split(' - ')
