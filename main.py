@@ -1,5 +1,7 @@
+# A recomendação da documentação para a criação de spiders é no diretório "spiders"
 import scrapy
 
+# Nome da classe sem relação com seu uso
 class QuotesSpider(scrapy.Spider):
     name = "products"
 
@@ -7,9 +9,16 @@ class QuotesSpider(scrapy.Spider):
 
     def parse(Self, response):
         base_url = "https://www.amazon.com.br{}"
+        # Não é necessario manter este contador.
+        # basta selecionar relativo ao elemento 
+        # "product" usando os seletores css ou xpath
+        # para xpath basta utilizar ./ ao inves de //
         cont_li = 1
         products = response.xpath('//*[@id="zg-ordered-list"]/li')
         for product in products:
+            # Seletores utilizando muito aninhamento ao invés de utilizar 
+            # id e class quando possível o problema nisso é que qualquer mínima 
+            # modificação na estrutura da página quebraria a spider.
             name = product.xpath(f'//li[{cont_li}]/span/div/span/a/div/text()').get().strip()
             path_to_product = product.xpath(f'//li[{cont_li}]/span/div/span/a').attrib['href']
             link = base_url.format(path_to_product)
@@ -40,7 +49,16 @@ class QuotesSpider(scrapy.Spider):
             }
             cont_li+=1
 
+# Funções com comportamentos muito parecidos
+# Uma forma melhor de fazer seria criar uma 
+# função para retirar separador de milhar e 
+# outra para converter o separador decimal de ',' para '.'
+# e aplicar essas funções conforme necessário
 def normalize_rate_qty(rate_qty):
+    # Usar == na comparação com None não é a forma pythonica.
+    # Deve-se utilizar o "is" para verificar que determinada variável possui valor None
+    # Realmente não faz diferença com tipos primitivos da linguagem, porém
+    # com tipos que sobrescrevem o comparador de igualdade podem haver resultados inesperados
     if rate_qty == None:
         return None
     return int(rate_qty.replace(".", ""))
@@ -77,6 +95,8 @@ def normalize_offers_qty(offers_qty):
         return None
     return int(offers_qty.split(" ")[0].replace(".", ""))
 
+# Duplicação de código nas duas funções abaixo
+# Falha caso haja separador de milhar e.g. R$1.200,99
 def normalize_min_price(min_price):
     if min_price == None:
         return None
